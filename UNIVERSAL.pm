@@ -1,75 +1,112 @@
+#
+
 package UNIVERSAL;
-
-sub FileHandle::is_instance {$_[0] ne 'FileHandle'}
-sub FileHandle::class {'FileHandle'}
-
-sub is_instance {ref($_[0]) ? 1 : ''}
-sub class {ref($_[0]) || $_[0]}
-
-1;
-__END__
 
 =head1 NAME
 
-UNIVERSAL - default general behaviour for all objects.
+    UNIVERSAL - Default general behaviour for all objects.
 
 =head1 SYNOPSIS
 
-Usage:
+    use UNIVERSAL;
 
-    require UNIVERSAL;
-    
-    $class = $any_object->class();
-    $bool = $any_object->is_instance();
+    if($obj->isa('IO::Handle')) {
+    	...
+    }
+
+    $func = $obj->can('some_method_name');
+
+    $class = $obj->class;
+
+    if($var->is_instance) {
+    	...
+    }
 
 =head1 DESCRIPTION
 
-Provides general default methods which any object can call.
+The C<UNIVERSAL> package defines methods that are inherited by all other
+classes. These methods are
 
 =over 4
 
-=item ->class()
+=item isa( CLASS )
 
-This method returns the class of its object.
+C<isa> returns I<true> if its object is blessed into a sub-class of C<CLASS>
 
-=item ->is_instance()
+C<isa> is also exportable and can be called as a sub with two arguments. This
+allows the ability to check what a reference points to. Example
 
-This method returns true if its object is an instance of some
-class, false if its object is the class (package) itself. i.e.
-if 'A' is a package, then 'A->is_instance()' is false,
-but '$a = bless [],A; $a->is_instance()' is true.
+    use UNIVERSAL qw(isa);
+
+    if(isa($ref, 'ARRAY')) {
+    	...
+    }
+
+=item can( METHOD )
+
+C<can> checks to see if its object has a method called C<METHOD>,
+if it does then a reference to the sub is returned, if it does not then
+I<undef> is returned.
+
+=item class()
+
+C<class> returns the class name of its object.
+
+=item is_instance()
+
+C<is_instance> returns true if its object is an instance of some
+class, false if its object is the class (package) itself. Example
+
+    A->is_instance();       # Flase
+    
+    $var = 'A';
+    $var->is_instance();    # False
+    
+    $ref = bless [], 'A';
+    $ref->is_instance();    # True
 
 =back
 
-=head1 EXAMPLE
+=head1 NOTE
 
-The following illustrates the methods, and can be executed
-using C<perl -x UNIVERSAL.pm>
+C<isa> and C<can> are implemented in XS code. C<can> directly uses perl's
+internal code for method lookup, and C<isa> uses a very similar method and
+cache-ing strategy. This may cause strange effects if the perl code
+dynamically changes @ISA in any package.
 
-#!perl
-    
+=head1 AUTHOR
 
-    require UNIVERSAL;
-    package C;
-    sub new {bless []}
-    
-    package main;
-    sub test {
-       my($obj,$meth,@args) = @_;
-       print $obj,'->',$meth,'(',@args,") gives '",
-        	join(',',$obj->$meth(@args)),"'\n"
-    }
-    
-    test(C,'is_instance'); 			#C->is_instance()
-    test(C->new(),'is_instance'); 		#C->new()->is_instance()
-    
-    test(C,'class'); 				#C->class()
-    test(C->new(),'class'); 			#C->new()->class()
-    
-__END__
+Graham Barr <Graham.Barr@tiuk.ti.com>
 
-=head1 MODIFICATION HISTORY
+=head1 COPYRIGHT
 
-Base version, 1.0, 18th May 1995 - JS.
+Copyright (c) 1995 Graham Barr. All rights reserved. This program is free
+software; you can redistribute it and/or modify it under the same terms
+as Perl itself.
+
+=head1 REVISION
+
+$Revision: 1.2 $
 
 =cut
+
+$VERSION  = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
+
+require DynaLoader;
+require Exporter;
+
+@ISA = qw(Exporter DynaLoader);
+@EXPORT_OK = qw(isa);
+
+bootstrap UNIVERSAL $VERSION;
+
+sub is_instance {
+    ref($_[0]) ? 1 : ''
+}
+
+sub class {
+    ref($_[0]) || $_[0]
+}
+
+1;
+

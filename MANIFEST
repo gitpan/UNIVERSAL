@@ -1,0 +1,6 @@
+MANIFEST
+Makefile.PL
+UNIVERSAL.pm			(v1.02) 
+UNIVERSAL.xs
+t/can.t
+t/isa.t
