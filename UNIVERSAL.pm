@@ -86,11 +86,11 @@ as Perl itself.
 
 =head1 REVISION
 
-$Revision: 1.2 $
+$Revision: 1.3 $
 
 =cut
 
-$VERSION  = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION  = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 
 require DynaLoader;
 require Exporter;

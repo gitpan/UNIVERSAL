@@ -146,9 +146,13 @@ CODE:
 
     gv = gv_fetchmethod(SvSTASH(sv), name);
 
-    if(gv && (cv = GvCV(gv))) {
-	rv = sv_newmortal();
-	sv_setsv(rv, newRV((SV*)cv));
+    if(gv && GvCV(gv)) {
+        /* If the sub is only a stub then we may have a gv to AUTOLOAD */
+    	GV **gvp = (GV**)hv_fetch(GvSTASH(gv), name, strlen(name), TRUE);
+        if(gvp && (cv = GvCV(*gvp))) {
+	    rv = sv_newmortal();
+	    sv_setsv(rv, newRV((SV*)cv));
+    	}
     }
     ST(0) = rv;
 }
